@@ -3,8 +3,8 @@ name: Ruby
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+# pull_request:
+#   branches: [ master ]
 
 jobs:
   build:
@@ -12,23 +12,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby 2.7.1
-      uses: actions/setup-ruby@v1
-      with:
-        ruby-version: 2.7.x
-    - name: Build and test with Rake
-      run: |
-        gem install bundler
-        bundle install --jobs 4 --retry 3
+      - uses: actions/checkout@v3
+      
+      - name: Set up Ruby 2.7.2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.2'
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - run: bundle exec rake
         
-    - uses: actions/checkout@master
-    - name: Commit files
-      run: |
-        git config --global user.email "you@example.com"
-        git config --global user.name "Github action"
-        git commit -m "Github action to update bundle" -a
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Snyk and Snyk Delta
+        run: npm install -g snyk snyk-delta
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYKTOKEN2 }}
+
+      - name: Snyk test and delta
+        run: snyk test --json | snyk-delta --setPassIfNoBaseline true
