@@ -1,0 +1,43 @@
+name: Ruby
+
+on:
+# push:
+#   branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.2'
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        
+      - name: Install Snyk and gh-commit-status
+        run: npm install -g snyk snyk-prevent-gh-commit-status
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYKTOKEN2 }}
+
+      - name: Snyk test to json file
+        run: snyk test --json --json-file-output=snykTestResults.json
+
+      - name: Snyk gh-commit-status
+        run: snyk-prevent-gh-commit-status-linux
+             ./snykTestResults.json
+             ${{ secrets.GITHUB_TOKEN }}
+             cgibbs-snyk
+             ruby-goof
+             ${sha1}
+             refs/pull/:prNumber/merge
+             https://google.com
+             <keepHistory - optional>
+
+      - name: Snyk monitor
+        run: snyk monitor
