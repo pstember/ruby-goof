@@ -27,3 +27,6 @@ jobs:
 
       - name: Snyk test and delta
         run: snyk test --json | snyk-delta --setPassIfNoBaseline true
+        
+      - name: Snyk monitor
+        run: snyk monitor
