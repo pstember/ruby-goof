@@ -1,10 +1,10 @@
 name: Ruby
 
 on:
-  push:
-    branches: [ master ]
-# pull_request:
-#   branches: [ master ]
+#  push:
+#    branches: [ master ]
+ pull_request:
+   branches: [ master ]
 
 jobs:
   build:
@@ -18,9 +18,6 @@ jobs:
         with:
           ruby-version: '2.7.2'
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-        
-      - name: Snyk help
-        run: snyk help
         
       - name: Install Snyk and Snyk Delta
         run: npm install -g snyk snyk-delta
